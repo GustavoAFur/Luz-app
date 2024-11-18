@@ -1,9 +1,21 @@
-import React, { useRef, useState } from 'react'
-import { View, Text, ScrollView, StatusBar, TextInput, Pressable, Image, KeyboardAvoidingView, Dimensions, Platform } from 'react-native'
-import { getStatusBarHeight } from 'react-native-status-bar-height'
+import React, { useState, useEffect, useRef } from 'react'
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  ScrollView, 
+  TextInput, 
+  Dimensions, 
+  StatusBar,
+  Platform,
+  Pressable,
+  Image,
+  KeyboardAvoidingView
+} from 'react-native'
 import auth from '@react-native-firebase/auth'
 import LottieView from 'lottie-react-native'
-import firestore from '@react-native-firebase/firestore'
+import { getStatusBarHeight } from 'react-native-status-bar-height'
+import MaskInput, { Masks } from 'react-native-mask-input'
 
 import IconBack from '../../assets/svg/back.svg'
 
@@ -11,7 +23,6 @@ export function SignUp({ navigation }: { navigation: any }) {
 
   const { width, height } = Dimensions.get("window")
 
-  const nomeRef = useRef(null)
   const emailRef = useRef(null)
   const passwordRef = useRef(null)
 
@@ -19,56 +30,8 @@ export function SignUp({ navigation }: { navigation: any }) {
   const [loading, setLoading] = useState(false)
   const [messageErro, setmessageErro] = useState<string>('')
 
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [cpf, setCpf] = useState('')
-  const [city, setCity] = useState('')
-
-  
-
-  async function signInWithEmailAndPassword() {
-    setLoading(!loading)
-
-    if (name != '' && email != '' && password != '') {
-      auth()
-        .createUserWithEmailAndPassword(email, password)
-        .then(async (auth) => {
-          
-          setLoading(!loading)
-          await auth.user.updateProfile({
-            displayName: name
-          })
-
-          await firestore()
-          .collection('users@reriutaba')
-          .doc(`${auth.user.uid}`)
-          .set({
-            name,
-            email,
-            city,
-            cpf,
-            accountCreation: new Date(),
-            uid: auth.user.uid,
-          })
-        })
-        .catch(error => {
-          if (error.code === 'auth/email-already-in-use') {
-            setmessageErro('Esse endereço de email já esta em uso!')
-          }
-
-          if (error.code === 'auth/invalid-email') {
-            setmessageErro('Esse endereço de e-mail é inválido!')
-          }
-
-          setLoading(false)
-
-        })
-    } else {
-      setmessageErro('Informe um email e senha válidos.')
-      setLoading(false)
-    }
-  }
+  const [password, setPassword] = useState('')
 
   return (
     <ScrollView keyboardShouldPersistTaps="always" showsVerticalScrollIndicator={false} style={{
@@ -82,7 +45,6 @@ export function SignUp({ navigation }: { navigation: any }) {
           paddingTop: getStatusBarHeight(),
         }}
       >
-
         <StatusBar translucent backgroundColor={'#00000000'} barStyle={'dark-content'} />
 
         <View style={{
@@ -91,7 +53,11 @@ export function SignUp({ navigation }: { navigation: any }) {
           marginTop: 24,
           paddingHorizontal: 30
         }}>
-          <IconBack />
+          <TouchableOpacity onPress={() => {
+            navigation.goBack()
+          }}>
+            <IconBack width={24} height={24} />
+          </TouchableOpacity>
         </View>
 
         <View style={{
@@ -103,7 +69,8 @@ export function SignUp({ navigation }: { navigation: any }) {
             fontFamily: 'GeneralSans-Semibold',
             color: '#0F1121',
           }}>
-            Bem-vindo à Voz do Cidadão
+            Bem-vindo ao app{`\n`}
+            e-Ilumina
           </Text>
 
           <Text style={{
@@ -113,106 +80,53 @@ export function SignUp({ navigation }: { navigation: any }) {
             color: '#67697A',
             marginTop: 16
           }}>
-            Promove a conscientização e educação dos cidadãos sobre seus direitos e deveres.
+            Promove o apoio e solitação de serviços de iluminação pública, por meio da digitalização.
           </Text>
         </View>
 
         <View style={{
           marginTop: 32,
+          paddingHorizontal: 30,
           gap: 16
         }}>
 
           <View style={{
-            paddingHorizontal: 30
           }}>
             <Text style={{
               fontSize: 14,
               fontFamily: 'GeneralSans-Semibold',
               color: '#0F1121',
             }}>
-              Nome
+              CPF
             </Text>
 
             <View style={{
               width: '100%',
-              height: 48,
+              height: 55,
               backgroundColor: '#F3F3FA',
               borderRadius: 12,
               marginTop: 8,
               borderWidth: 1,
-              //@ts-ignore
-              borderColor: isFocused == 'nomeRef' ? '#4A68FF' : '#F3F3FA'
+              borderColor: isFocused == 'emailRef' ? '#0077FF' : '#F3F3FA'
             }}>
-              <TextInput
-                onSubmitEditing={() => {
-                  //@ts-ignore
-                  emailRef.current.focus()
-                }}
-                ref={emailRef}
-                keyboardType="default"
-                autoComplete="name"
-                placeholder="Digite seu nome"
-                placeholderTextColor={"#CBCDE2"}
-                autoCorrect={false}
-                returnKeyType="go"
-                onFocus={() => {
-                  setIsFocused('nomeRef')
-                }}
-                onBlur={() => {
-                  setIsFocused('')
-                }}
-                showSoftInputOnFocus={true}
-                selectTextOnFocus={true}
-                onChangeText={setName}
-                value={name}
-                style={{
-                  width: '100%',
-                  fontSize: 15,
-                  fontFamily: 'GeneralSans-Medium',
-                  color: '#0F1121',
-                  height: 48,
-                  marginLeft: 10,
-                }} />
-            </View>
-          </View>
-
-          <View style={{
-            paddingHorizontal: 30
-          }}>
-            <Text style={{
-              fontSize: 14,
-              fontFamily: 'GeneralSans-Semibold',
-              color: '#0F1121',
-            }}>
-              Email
-            </Text>
-
-            <View style={{
-              width: '100%',
-              height: 48,
-              backgroundColor: '#F3F3FA',
-              borderRadius: 12,
-              marginTop: 8,
-              borderWidth: 1,
-              //@ts-ignore
-              borderColor: isFocused == 'emailRef' ? '#4A68FF' : '#F3F3FA'
-            }}>
-              <TextInput
+              <MaskInput
                 ref={emailRef}
                 onSubmitEditing={() => {
                   //@ts-ignore
                   passwordRef.current.focus()
                 }}
-                keyboardType="email-address"
-                autoComplete="email"
-                placeholder="Digite seu email"
+                mask={Masks.BRL_CPF}
+                keyboardType="numeric"
+                placeholder="Digite seu CPF"
                 placeholderTextColor={"#CBCDE2"}
                 autoCorrect={false}
                 returnKeyType="go"
                 showSoftInputOnFocus={true}
                 selectTextOnFocus={true}
-                onChangeText={setEmail}
-                value={email}
+                onChangeText={(mask, unmasked) => {
+                  setCpf(unmasked)
+                }}
+                value={cpf}
                 onFocus={() => {
                   setIsFocused('emailRef')
                 }}
@@ -224,14 +138,13 @@ export function SignUp({ navigation }: { navigation: any }) {
                   fontSize: 15,
                   fontFamily: 'GeneralSans-Medium',
                   color: '#0F1121',
-                  height: 48,
-                  marginLeft: 10,
+                  height: 51,
+                  paddingLeft: 15,
                 }} />
             </View>
           </View>
 
           <View style={{
-            paddingHorizontal: 30
           }}>
             <Text style={{
               fontSize: 14,
@@ -243,18 +156,16 @@ export function SignUp({ navigation }: { navigation: any }) {
 
             <View style={{
               width: '100%',
-              height: 48,
+              height: 55,
               backgroundColor: '#F3F3FA',
               borderRadius: 12,
               marginTop: 8,
               borderWidth: 1,
-              //@ts-ignore
-              borderColor: isFocused == 'passwordRef' ? '#4A68FF' : '#F3F3FA'
+              borderColor: isFocused == 'passwordRef' ? '#0077FF' : '#F3F3FA'
             }}>
               <TextInput
                 ref={passwordRef}
                 onSubmitEditing={() => {
-                  signInWithEmailAndPassword()
                 }}
                 keyboardType="default"
                 secureTextEntry={true}
@@ -276,8 +187,8 @@ export function SignUp({ navigation }: { navigation: any }) {
                   fontSize: 15,
                   fontFamily: 'GeneralSans-Medium',
                   color: '#0F1121',
-                  height: 48,
-                  marginLeft: 10,
+                  height: 51,
+                  paddingLeft: 15,
                 }} />
             </View>
           </View>
@@ -296,23 +207,48 @@ export function SignUp({ navigation }: { navigation: any }) {
             )
           }
 
-        </View>
-
-        <View style={{
-          width: '100%',
-          marginTop: messageErro ? 20 : 32,
-          paddingHorizontal: 30
-        }}>
-
           <Pressable
-            onPress={() => {
-              signInWithEmailAndPassword()
+            onPress={async () => {
+              setLoading(!loading)
+
+              if (cpf != '' && password != '') {
+                auth()
+                  .createUserWithEmailAndPassword(`${cpf}@eilumina.com`, password)
+                  .then(() => {
+                    
+                    setLoading(!loading)
+                  })
+                  .catch(error => {
+                    if (error.code === 'auth/email-already-in-use') {
+                      setmessageErro('Esse endereço de email já esta em uso!')
+                    }
+          
+                    if (error.code === 'auth/invalid-email') {
+                      setmessageErro('Esse endereço de e-mail é inválido!')
+                    }
+          
+                    if (error.code === 'auth/invalid-credential') {
+                      setmessageErro('Essa conta não existe!')
+                    }
+          
+                    else {
+                      setmessageErro('Algo deu errado! Tente novamente mais tarde.')
+                    }
+          
+                    setLoading(false)
+          
+                  })
+              } else {
+                setmessageErro('Informe um cpf e senha válidos.')
+                setLoading(false)
+              }
             }}
             style={{
               width: '100%',
-              height: 52,
+              height: 55,
               borderRadius: 50,
-              backgroundColor: '#4A68FF',
+              marginTop: 10,
+              backgroundColor: '#0077FF',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
@@ -339,14 +275,21 @@ export function SignUp({ navigation }: { navigation: any }) {
 
           </Pressable>
 
-          {/* <View style={{
-            marginTop: 32,
+        </View>
+
+        <View style={{
+          width: '100%',
+          marginTop: messageErro ? 20 : 32,
+          paddingHorizontal: 30,
+        }}>
+
+          <View style={{
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between'
           }}>
             <View style={{
-              width: '22%',
+              width: '27%',
               height: 1,
               backgroundColor: '#F3F3FA'
             }} />
@@ -357,22 +300,21 @@ export function SignUp({ navigation }: { navigation: any }) {
               fontFamily: 'GeneralSans-Regular',
               color: '#67697A',
             }}>
-              ou cadastre-se usando
+              ou crie uma conta
             </Text>
 
             <View style={{
-              width: '22%',
+              width: '27%',
               height: 1,
               backgroundColor: '#F3F3FA'
             }} />
 
           </View>
-
           <View style={{
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginTop: 20
+            marginTop: 25
           }}>
             <Pressable
               onPress={() => {
@@ -389,23 +331,22 @@ export function SignUp({ navigation }: { navigation: any }) {
                 borderWidth: 1,
                 borderColor: '#F3F3FA'
               }}>
-              <Image source={ImgFacebook} resizeMode='contain' style={{
+              {/* <Image source={ImgFacebook} resizeMode='contain' style={{
                 width: 20,
                 height: 20,
-              }} />
+              }} /> */}
 
               <Text style={{
                 fontSize: 16,
                 fontFamily: 'GeneralSans-Semibold',
                 color: '#0F1121',
               }}>
-                Facebook
+                Email
               </Text>
             </Pressable>
 
             <Pressable
               onPress={() => {
-                onGoogleButtonPress()
               }}
               style={{
                 width: 160,
@@ -418,36 +359,36 @@ export function SignUp({ navigation }: { navigation: any }) {
                 borderWidth: 1,
                 borderColor: '#F3F3FA'
               }}>
-              <Image source={ImgGoogle} resizeMode='contain' style={{
+              {/* <Image source={ImgGoogle} resizeMode='contain' style={{
                 width: 20,
                 height: 20,
-              }} />
+              }} /> */}
 
               <Text style={{
                 fontSize: 16,
                 fontFamily: 'GeneralSans-Semibold',
                 color: '#0F1121',
               }}>
-                Google
+                Anônimo
               </Text>
             </Pressable>
-          </View> */}
+          </View>
 
           <Pressable
             onPress={() => {
-              navigation.navigate('SignIn')
+              navigation.goBack()
             }}
             style={{
               alignSelf: 'center',
               marginTop: 32,
-              marginBottom: 32
+              marginBottom: 32,
             }}>
             <Text style={{
               fontSize: 16,
               fontFamily: 'GeneralSans-Regular',
               color: '#67697A',
             }}>
-              Já tem uma conta?  <Text style={{ fontFamily: 'GeneralSans-Semibold', color: '#4A68FF' }}>
+              Já tem uma conta?  <Text style={{ fontFamily: 'GeneralSans-Semibold', color: '#0077FF' }}>
                 Entrar
               </Text>
             </Text>

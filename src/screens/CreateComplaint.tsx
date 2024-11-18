@@ -278,7 +278,7 @@ export function CreateComplaint({navigation}: {navigation: any}) {
           height: 52,
           borderRadius: 50,
           backgroundColor: '#ffffff',
-          borderColor: '#4A68FF',
+          borderColor: '#0077FF',
           borderWidth: 1,
           alignItems: 'center',
           justifyContent: 'center',
@@ -289,7 +289,7 @@ export function CreateComplaint({navigation}: {navigation: any}) {
           style={{
             fontSize: 16,
             fontFamily: 'GeneralSans-Semibold',
-            color: '#4A68FF',
+            color: '#0077FF',
           }}>
           Informar Local
         </Text>

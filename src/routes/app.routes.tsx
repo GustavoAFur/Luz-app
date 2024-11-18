@@ -1,73 +1,32 @@
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
-import {Home} from '../screens/Home';
-import {Complaints} from '../screens/Complaints';
-import {Image} from 'react-native';
-import {CreateComplaint} from '../screens/CreateComplaint';
-import {ChoosePlace} from '../screens/ChoosePlace';
+import { Image } from 'react-native'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack'
+
+import { Home } from '../screens/Home'
+import { Complaints } from '../screens/Complaints'
+import { CreateComplaint } from '../screens/CreateComplaint'
+import { AnonymousReport } from '../screens/AnonymousReport'
+import { Manifestation } from '../screens/Manifestation'
 
 export function Navigation() {
-  function MyTab() {
-    const Tab = createBottomTabNavigator();
 
-    return (
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}>
-        <Tab.Screen
-          name="Inicio"
-          component={Home}
-          options={{
-            tabBarIcon: ({focused}) =>
-              focused ? (
-                <Image
-                  source={require('../../assets/img/home-focused.png')}
-                  style={{width: 24, height: 24}}
-                />
-              ) : (
-                <Image
-                  source={require('../../assets/img/home.png')}
-                  style={{width: 24, height: 24}}
-                />
-              ),
-          }}
-        />
-        <Tab.Screen
-          name="Denuncias"
-          component={Complaints}
-          options={{
-            tabBarIcon: ({focused}) =>
-              focused ? (
-                <Image
-                  source={require('../../assets/img/request-focused.png')}
-                  style={{width: 24, height: 24}}
-                />
-              ) : (
-                <Image
-                  source={require('../../assets/img/request.png')}
-                  style={{width: 24, height: 24}}
-                />
-              ),
-          }}
-        />
-      </Tab.Navigator>
-    );
-  }
+  const Stack = createStackNavigator()
 
-  const Stack = createStackNavigator();
   return (
     <Stack.Navigator
+      initialRouteName="Home"
       screenOptions={{
         headerShown: false,
       }}>
+
       <Stack.Screen
-        name="myTabs"
-        component={MyTab}
+        name="Home"
+        component={Home}
         options={{
           ...TransitionPresets.SlideFromRightIOS,
         }}
       />
+
       <Stack.Screen
         name="CreateComplaint"
         component={CreateComplaint}
@@ -75,6 +34,23 @@ export function Navigation() {
           ...TransitionPresets.SlideFromRightIOS,
         }}
       />
+
+      <Stack.Screen
+        name="AnonymousReport"
+        component={AnonymousReport}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+
+      <Stack.Screen
+        name="Manifestation"
+        component={Manifestation}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+
     </Stack.Navigator>
   );
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "133550478259",
+    "project_id": "e-ilumina",
+    "storage_bucket": "e-ilumina.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:133550478259:android:beffbb3f7208f0b77eb1c6",
+        "android_client_info": {
+          "package_name": "com.luz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSVJWG9gsDjFsmXfSV08zD9Fi2m6AP_l8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

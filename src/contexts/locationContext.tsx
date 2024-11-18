@@ -29,4 +29,6 @@ function LocationProvider({ children }: any) {
   )
 }
 
-export default LocationProvider
+export { 
+  LocationProvider
+}

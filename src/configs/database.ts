@@ -1,0 +1,9 @@
+const DATABASE_NAME = '@e-ilumina'
+
+const COLLECTION_REGISTRATION = `${DATABASE_NAME}:registration`
+const COLLECTION_CITY = `${DATABASE_NAME}:city`
+
+export {
+  COLLECTION_REGISTRATION,
+  COLLECTION_CITY
+};
