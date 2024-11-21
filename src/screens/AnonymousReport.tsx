@@ -1,26 +1,48 @@
-import React, { useState } from 'react'
-import { View, Text, ScrollView, StatusBar, Pressable, TouchableOpacity, Dimensions, TouchableNativeFeedback, TextInput, Image, StyleSheet, FlatList, KeyboardAvoidingView, LogBox } from 'react-native'
-import { getStatusBarHeight } from 'react-native-status-bar-height'
-import firestore from '@react-native-firebase/firestore'
-import Modal from 'react-native-modal'
-import DropDownPicker from 'react-native-dropdown-picker'
-import DocumentPicker from 'react-native-document-picker'
-import storage from '@react-native-firebase/storage'
-import { ptBR } from 'date-fns/locale'
-import auth from '@react-native-firebase/auth'
-import { format } from 'date-fns'
+import React, {useContext, useState} from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StatusBar,
+  Pressable,
+  TouchableOpacity,
+  Dimensions,
+  TouchableNativeFeedback,
+  TextInput,
+  Image,
+  StyleSheet,
+  FlatList,
+  KeyboardAvoidingView,
+  LogBox,
+  Alert,
+} from 'react-native';
+import {getStatusBarHeight} from 'react-native-status-bar-height';
+import firestore from '@react-native-firebase/firestore';
+import Modal from 'react-native-modal';
+import DropDownPicker from 'react-native-dropdown-picker';
+import DocumentPicker from 'react-native-document-picker';
+import storage from '@react-native-firebase/storage';
+import {ptBR} from 'date-fns/locale';
+import auth from '@react-native-firebase/auth';
+import {format} from 'date-fns';
 
-import IconClose from '../../assets/svg/close.svg'
-import IconBack from '../../assets/svg/back.svg'
-import IconFolder from '../../assets/svg/folder.svg'
-import IconFile from '../../assets/svg/file.svg'
-import IconTickCircle from '../../assets/svg/tick-circle.svg'
-import MaskMap from '../../assets/svg/mask-map.svg'
-import MapPin from '../../assets/svg/map-pin.svg'
-import IconChevronRight from '../../assets/svg/chevron-right.svg'
+import IconClose from '../../assets/svg/close.svg';
+import IconBack from '../../assets/svg/back.svg';
+import IconFolder from '../../assets/svg/folder.svg';
+import IconFile from '../../assets/svg/file.svg';
+import IconTickCircle from '../../assets/svg/tick-circle.svg';
+import MaskMap from '../../assets/svg/mask-map.svg';
+import MapPin from '../../assets/svg/map-pin.svg';
+import IconChevronRight from '../../assets/svg/chevron-right.svg';
 
-import { useAuth } from '../hooks/auth'
+import {useAuth} from '../hooks/auth';
+import {LocationContext} from '../contexts/locationContext';
+import Geolocation from '@react-native-community/geolocation';
 
+interface latLong {
+  latitude: number | null;
+  longitude: number | null;
+}
 interface File {
   uri: string;
   type: string | null;
@@ -31,43 +53,57 @@ interface File {
   progress?: number;
   uploadDate: Date;
 }
-export function AnonymousReport({ navigation }: { navigation: any }) {
-
-  const { width, height } = Dimensions.get("window")
-  const { setCity, city } = useAuth()
+export function AnonymousReport({navigation}: {navigation: any}) {
+  const {width, height} = Dimensions.get('window');
+  const {setCity, city} = useAuth();
 
   LogBox.ignoreLogs([
     'VirtualizedLists should never be nested inside plain ScrollViews with the same orientation',
   ]);
 
-  const [TipoImovel, setTipoImovel] = useState('')
-  const [uriImage, setUriImage] = useState('')
-  const [downloadURL, setDownloadURL] = useState('')
-  const [descricaoViolencia, setDescricaoViolencia] = useState('')
-  const [progress, setProgress] = useState(0)
-  const [modalErro, setModalErro] = useState(false)
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [TipoImovel, setTipoImovel] = useState('');
+  const [uriImage, setUriImage] = useState('');
+  const [downloadURL, setDownloadURL] = useState('');
+  const [descricaoViolencia, setDescricaoViolencia] = useState('');
+  const [progress, setProgress] = useState(0);
+  const [modalErro, setModalErro] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [descricaoDenuncia, setDescricaoDenuncia] = useState('');
 
-  const [open, setOpen] = useState(false)
-  const [value, setValue] = useState(null)
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
   const [items, setItems] = useState([
-    { label: "Violência física", value: "violencia_fisica" },
-    { label: "Violência psicológica", value: "violencia_psicologica" },
-    { label: "Violência sexual", value: "violencia_sexual" },
-    { label: "Violência patrimonial", value: "violencia_patrimonial" },
-    { label: "Violência moral", value: "violencia_moral" },
-    { label: "Violência doméstica", value: "violencia_domestica" },
-    { label: "Violência obstétrica", value: "violencia_obstetrica" },
-    { label: "Assédio sexual", value: "assedio_sexual" },
-    { label: "Violência institucional", value: "violencia_institucional" },
-  ])
+    {label: 'Lâmpada queimada', value: 'lampada_queimada'},
+    {label: 'Lâmpada acesa durante o dia', value: 'lampada_acesa_dia'},
+    {label: 'Lâmpada piscando', value: 'lampada_piscando'},
+    {label: 'Problema no poste', value: 'problema_poste'},
+    {label: 'Outro', value: 'outro'},
+  ]);
+
+  const {locationSelected, setLocationSelected} = useContext(LocationContext);
+
+  const [currentLocationSelected, setCurrentLocationSelected] =
+    useState<latLong | null>(null);
+
+  const [position, setPosition] = useState<latLong | null>(null);
+  const getCurrentPosition = () => {
+    Geolocation.getCurrentPosition(
+      pos => {
+        const {latitude, longitude} = pos.coords;
+        setPosition({latitude, longitude});
+      },
+      error => Alert.alert('GetCurrentPosition Error', JSON.stringify(error)),
+      {enableHighAccuracy: true},
+    );
+    console.log(position);
+  };
 
   async function uploadFile() {
     try {
       const result = await DocumentPicker.pick({
         type: [DocumentPicker.types.allFiles],
-        copyTo: 'cachesDirectory'
+        copyTo: 'cachesDirectory',
       });
 
       const files = result.map(file => ({
@@ -75,16 +111,21 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
         type: file.type,
         name: file.name,
         size: file.size,
-        formattedSize: file.size !== null ? formatFileSize(file.size) : 'Tamanho desconhecido',
+        formattedSize:
+          file.size !== null
+            ? formatFileSize(file.size)
+            : 'Tamanho desconhecido',
         fileCopyUri: file.fileCopyUri,
         progress: 0,
-        uploadDate: new Date()
+        uploadDate: new Date(),
       }));
 
       setSelectedFiles(prevFiles => [...prevFiles, ...files]);
 
       files.forEach((file, index) => {
-        const storageRef = storage().ref(`debug@vozdamulher/denuncias/arquivos/${file.name}`);
+        const storageRef = storage().ref(
+          `debug@vozdamulher/denuncias/arquivos/${file.name}`,
+        );
 
         if (file.fileCopyUri === null) {
           return;
@@ -95,12 +136,15 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
         task.on(
           'state_changed',
           snapshot => {
-
-            const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+            const progress = Math.round(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
+            );
 
             // Atualize o progresso do arquivo individualmente no array de arquivos
             setSelectedFiles(prevFiles =>
-              prevFiles.map((f, i) => i === index ? { ...f, uploadDate: new Date(), progress } : f)
+              prevFiles.map((f, i) =>
+                i === index ? {...f, uploadDate: new Date(), progress} : f,
+              ),
             );
           },
           error => {
@@ -109,7 +153,7 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
           async () => {
             const downloadURL = await storageRef.getDownloadURL();
             setDownloadURL(downloadURL);
-          }
+          },
         );
       });
     } catch (err) {
@@ -131,66 +175,75 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
   }
 
   return (
-    <ScrollView keyboardShouldPersistTaps="always" showsVerticalScrollIndicator={false} style={{
-      backgroundColor: '#ffff',
-    }}>
-      <StatusBar translucent backgroundColor={'#00000000'} barStyle={'dark-content'} />
-
-      <View style={{
-        marginTop: getStatusBarHeight() + 24,
-        paddingHorizontal: 30,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
+    <ScrollView
+      keyboardShouldPersistTaps="always"
+      showsVerticalScrollIndicator={false}
+      style={{
+        backgroundColor: '#ffff',
       }}>
-        <View style={{
-          width: '100%',
+      <StatusBar
+        translucent
+        backgroundColor={'#00000000'}
+        barStyle={'dark-content'}
+      />
+
+      <View
+        style={{
+          marginTop: getStatusBarHeight() + 24,
+          paddingHorizontal: 30,
           flexDirection: 'row',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
         }}>
-          <Pressable style={{
-            width: 42,
-            height: 42,
+        <View
+          style={{
+            width: '100%',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            justifyContent: 'center',
-          }}
-            onPress={() => navigation.goBack()}
-          >
+          }}>
+          <Pressable
+            style={{
+              width: 42,
+              height: 42,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => navigation.goBack()}>
             <IconBack />
           </Pressable>
 
-          <Text style={{
-            fontSize: 18,
-            fontFamily: 'GeneralSans-Semibold',
-            color: '#0F1121',
-          }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontFamily: 'GeneralSans-Semibold',
+              color: '#0F1121',
+            }}>
             Denúncias anônimas
           </Text>
 
-          <View style={{
-            width: 42,
-            height: 42,
-          }} />
-
+          <View
+            style={{
+              width: 42,
+              height: 42,
+            }}
+          />
         </View>
-
-
       </View>
 
-
-      <View style={{
-        width: '100%',
-        marginTop: 24,
-        paddingHorizontal: 30,
-      }}>
-
-        <Text style={{
-          color: '#0F1121',
-          fontFamily: 'GeneralSans-Semibold',
-          fontSize: 16,
+      <View
+        style={{
+          width: '100%',
+          marginTop: 24,
+          paddingHorizontal: 30,
         }}>
-          Tipo de Violência
+        <Text
+          style={{
+            color: '#0F1121',
+            fontFamily: 'GeneralSans-Semibold',
+            fontSize: 16,
+          }}>
+          Tipo de denúncia
         </Text>
 
         <DropDownPicker
@@ -208,14 +261,14 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
             borderRadius: 12,
             borderColor: '#F3F3FA',
           }}
-          dropDownDirection='BOTTOM'
+          dropDownDirection="BOTTOM"
           dropDownContainerStyle={{
             paddingLeft: 12,
             backgroundColor: '#FFFFFF',
             borderColor: '#F3F3FA',
             borderWidth: 1,
             marginTop: 16,
-            shadowColor: "#0002",
+            shadowColor: '#0002',
             shadowOffset: {
               width: 0,
               height: 2,
@@ -228,40 +281,44 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
           placeholderStyle={{
             color: '#67697A',
             fontFamily: 'GeneralSans-Semibold',
-            fontSize: 14
+            fontSize: 14,
           }}
           textStyle={{
             color: '#151E26',
             fontFamily: 'GeneralSans-Regular',
-            fontSize: 14
+            fontSize: 14,
           }}
-          placeholder='Selecione um item...'
+          placeholder="Selecione um item..."
         />
       </View>
 
-      <View style={{
-        marginTop: 24,
-        paddingHorizontal: 30,
-      }}>
-        <Text style={{
-          color: '#0F1121',
-          fontFamily: 'GeneralSans-Semibold',
-          fontSize: 16,
-        }}>Informe uma descrição do acontecimento:</Text>
-
-        <View style={{
-          marginTop: 16,
-          borderWidth: 1,
-          height: 200,
-          borderRadius: 10,
-          borderColor: '#F3F3FA',
-          paddingHorizontal: 10
+      <View
+        style={{
+          marginTop: 24,
+          paddingHorizontal: 30,
         }}>
+        <Text
+          style={{
+            color: '#0F1121',
+            fontFamily: 'GeneralSans-Semibold',
+            fontSize: 16,
+          }}>
+          Informe uma descrição do problema:
+        </Text>
 
+        <View
+          style={{
+            marginTop: 16,
+            borderWidth: 1,
+            height: 200,
+            borderRadius: 10,
+            borderColor: '#F3F3FA',
+            paddingHorizontal: 10,
+          }}>
           <TextInput
             multiline
-            onChangeText={(text) => setDescricaoViolencia(text)}
-            value={descricaoViolencia}
+            onChangeText={text => setDescricaoDenuncia(text)}
+            value={descricaoDenuncia}
             style={{
               width: '100%',
               height: 200,
@@ -270,76 +327,72 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
               color: '#0F1121',
               paddingVertical: 15,
               paddingHorizontal: 10,
-              textAlignVertical: 'top'
-            }} />
+              textAlignVertical: 'top',
+            }}
+          />
         </View>
-
       </View>
 
       <Pressable
-      onPress={() => setModalVisible(true)}
-      style={{
-        width: '100%',
-        paddingHorizontal: 30,
-        marginTop: 16
-      }}>
-        <View style={{
+        onPress={() => setModalVisible(true)}
+        style={{
           width: '100%',
-          height: 80,
-          borderRadius: 12,
-          backgroundColor: '#F2F6FC',
+          paddingHorizontal: 30,
+          marginTop: 16,
         }}>
-
-          <View style={{
+        <View
+          style={{
             width: '100%',
             height: 80,
             borderRadius: 12,
-            zIndex: 1,
-            position: 'absolute',
-            padding: 20,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 8
+            backgroundColor: '#F2F6FC',
           }}>
-
-            <View style={{
+          <View
+            style={{
+              width: '100%',
+              height: 80,
+              borderRadius: 12,
+              zIndex: 1,
+              position: 'absolute',
+              padding: 20,
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 12
+              justifyContent: 'space-between',
+              gap: 8,
             }}>
-              <MapPin
-                width={24}
-                height={24}
-              />
-
-              <View style={{
-                alignItems: 'flex-start'
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
               }}>
-                <Text style={{
-                  color: '#808D9E',
-                  fontSize: 12,
-                  fontFamily: 'GeneralSans-Medium',
+              <MapPin width={24} height={24} />
+
+              <View
+                style={{
+                  alignItems: 'flex-start',
                 }}>
+                <Text
+                  style={{
+                    color: '#808D9E',
+                    fontSize: 12,
+                    fontFamily: 'GeneralSans-Medium',
+                  }}>
                   Informe o endereço
                 </Text>
 
-                <Text style={{
-                  color: '#191A26',
-                  fontSize: 14,
-                  fontFamily: 'GeneralSans-Semibold',
-                }}>
+                <Text
+                  style={{
+                    color: '#191A26',
+                    fontSize: 14,
+                    fontFamily: 'GeneralSans-Semibold',
+                  }}>
                   Clique para abrir o mapa
                 </Text>
               </View>
-
             </View>
 
-
-            <IconChevronRight
-              width={24}
-              height={24}
-            />
+            <IconChevronRight width={24} height={24} />
           </View>
 
           <MaskMap
@@ -351,111 +404,103 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
             }}
           />
         </View>
-
       </Pressable>
 
       <Pressable
         onPress={() => uploadFile()}
         style={{
           marginTop: 16,
-          paddingHorizontal: 30
-        }}
-      >
-        <View style={{
-          width: '100%',
-          height: 175,
-          borderRadius: 12,
-          borderWidth: 1,
-          borderColor: '#EDE4FF',
-          backgroundColor: '#FCFBFF',
-          borderStyle: 'dashed',
-          padding: 16,
+          paddingHorizontal: 30,
         }}>
-          {
-            uriImage !== '' ? (
-              <Image
-                resizeMode='cover'
-                style={{
-                  width: width,
-                  height: width,
-                }}
-                source={{
-                  uri: uriImage,
-                }}
-              />
-            ) : (
+        <View
+          style={{
+            width: '100%',
+            height: 175,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: '#EDE4FF',
+            backgroundColor: '#FCFBFF',
+            borderStyle: 'dashed',
+            padding: 16,
+          }}>
+          {uriImage !== '' ? (
+            <Image
+              resizeMode="cover"
+              style={{
+                width: width,
+                height: width,
+              }}
+              source={{
+                uri: uriImage,
+              }}
+            />
+          ) : (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}>
+              <IconFolder width={58} height={58} />
+
               <View
                 style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8
-                }}
-              >
-                <IconFolder width={58} height={58} />
-
-                <View style={{
                   width: '80%',
-                  marginTop: 8
+                  marginTop: 8,
                 }}>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      color: '#0077FF',
-                      fontFamily: 'GeneralSans-Semibold',
-                      fontSize: 14,
-                    }}
-                  >
-                    Arraste e solte ou escolha{`\n`}
-                    o arquivo para fazer upload.
-                  </Text>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: '#0077FF',
+                    fontFamily: 'GeneralSans-Semibold',
+                    fontSize: 14,
+                  }}>
+                  Arraste e solte ou escolha{`\n`}o arquivo para fazer upload.
+                </Text>
 
-                  <Text
-                    style={{
-                      marginTop: 8,
-                      textAlign: 'center',
-                      color: '#3B4C56',
-                      fontFamily: 'GeneralSans-Regular',
-                      fontSize: 12,
-                    }}
-                  >
-                    Selecione zip, imagem, pdf ou word
-                  </Text>
-                </View>
+                <Text
+                  style={{
+                    marginTop: 8,
+                    textAlign: 'center',
+                    color: '#3B4C56',
+                    fontFamily: 'GeneralSans-Regular',
+                    fontSize: 12,
+                  }}>
+                  Selecione zip, imagem, pdf ou word
+                </Text>
               </View>
-            )
-          }
-
-
+            </View>
+          )}
         </View>
       </Pressable>
 
-      {
-        selectedFiles.length !== 0 && (
-
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item, index) => `${item.name}-${index}`}
-            contentContainerStyle={{
-              width: '100%',
-            }}
-            style={{
-              width: '100%',
-              paddingHorizontal: 30,
-              marginTop: 24
-            }}
-            ListHeaderComponent={() => (
-              <Text style={{
+      {selectedFiles.length !== 0 && (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item, index) => `${item.name}-${index}`}
+          contentContainerStyle={{
+            width: '100%',
+          }}
+          style={{
+            width: '100%',
+            paddingHorizontal: 30,
+            marginTop: 24,
+          }}
+          ListHeaderComponent={() => (
+            <Text
+              style={{
                 fontSize: 14,
                 lineHeight: 20,
                 fontFamily: 'GeneralSans-Medium',
                 color: '#67697A',
               }}>
-                Anexos
-              </Text>
-            )}
-            data={selectedFiles}
-            renderItem={({ item, index }) => (
-              <View style={{
+              Anexos
+            </Text>
+          )}
+          data={selectedFiles}
+          renderItem={({item, index}) => (
+            <View
+              style={{
                 width: '100%',
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -464,164 +509,136 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
                 borderColor: '#F6F7F9',
                 borderRadius: 12,
                 marginVertical: 8,
-                paddingHorizontal: 16
+                paddingHorizontal: 16,
               }}>
-                <IconFile width={32} height={32} />
+              <IconFile width={32} height={32} />
 
-                <View style={{
+              <View
+                style={{
                   width: '60%',
-                  paddingVertical: 20
+                  paddingVertical: 20,
                 }}>
-                  <Text style={{
+                <Text
+                  style={{
                     fontSize: 16,
                     fontFamily: 'GeneralSans-Semibold',
                     color: '#0F1121',
                   }}>
-                    {item.name}
-                  </Text>
+                  {item.name}
+                </Text>
 
-                  <Text style={{
+                <Text
+                  style={{
                     fontSize: 14,
                     marginTop: 8,
                     fontFamily: 'GeneralSans-Medium',
                     color: '#0F1121',
                   }}>
-                    {format(new Date(item.uploadDate), 'MMMM dd, yyyy', { locale: ptBR })}
-                  </Text>
+                  {format(new Date(item.uploadDate), 'MMMM dd, yyyy', {
+                    locale: ptBR,
+                  })}
+                </Text>
 
-                  <View style={{
+                <View
+                  style={{
                     gap: 8,
                     marginTop: 4,
                     flexDirection: 'row',
-                    alignItems: 'center'
+                    alignItems: 'center',
                   }}>
-                    <Text style={{
+                  <Text
+                    style={{
                       fontSize: 12,
                       fontFamily: 'GeneralSans-Medium',
                       color: '#67697A',
                     }}>
-                      {format(new Date(item.uploadDate), 'hh:mm a')}
-                    </Text>
+                    {format(new Date(item.uploadDate), 'hh:mm a')}
+                  </Text>
 
-                    <View
-                      style={{
-                        width: 5,
-                        height: 5,
-                        borderRadius: 5,
-                        backgroundColor: '#67697A',
-                      }}
-                    />
-                    <Text style={{
+                  <View
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: 5,
+                      backgroundColor: '#67697A',
+                    }}
+                  />
+                  <Text
+                    style={{
                       fontSize: 12,
                       fontFamily: 'GeneralSans-Medium',
                       color: '#67697A',
                     }}>
-                      {item.formattedSize}
-                    </Text>
-                  </View>
+                    {item.formattedSize}
+                  </Text>
                 </View>
+              </View>
 
-                <View style={{
+              <View
+                style={{
                   width: 48,
                   height: 48,
                   borderRadius: 48,
                   borderWidth: 2,
                   borderColor: item.progress === 100 ? '#FFFF' : '#0077FF',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
                 }}>
-                  {
-                    item.progress === 100 ? (
-                      <IconTickCircle width={24} height={24} />
-                    ) : (
-                      <Text style={{
-                        fontSize: 12,
-                        fontFamily: 'GeneralSans-Semibold',
-                        color: '#0F1121',
-                      }}>
-                        {item.progress}%
-                      </Text>
-                    )
-                  }
-
-                </View>
+                {item.progress === 100 ? (
+                  <IconTickCircle width={24} height={24} />
+                ) : (
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontFamily: 'GeneralSans-Semibold',
+                      color: '#0F1121',
+                    }}>
+                    {item.progress}%
+                  </Text>
+                )}
               </View>
-            )}
-          />
-        )
-      }
+            </View>
+          )}
+        />
+      )}
 
-      <View style={{
-        width: '100%',
-        paddingHorizontal: 30,
-        marginTop: 24,
-        marginBottom: 24
-      }}>
+      <View
+        style={{
+          width: '100%',
+          paddingHorizontal: 30,
+          marginTop: 24,
+          marginBottom: 24,
+        }}>
         <TouchableOpacity
-          onPress={() => {
-            firestore()
-              .collection(`users/${(city as { city: string }).city}@vozdamulher/db/manifestations/${auth().currentUser?.uid}/complaints/anonymous`)
-              .add({
-                registrationDate: new Date(),
-                manifestationType: 'anonymous',
-                propertyCategory: TipoImovel,
-                violenceDetails: descricaoViolencia,
-                files: selectedFiles,
+          onPress={async () => {
+            try {
+              const location = new firestore.GeoPoint(
+                currentLocationSelected?.latitude || 0,
+                currentLocationSelected?.longitude || 0,
+              );
 
-                victim: {
-                  name: null,
-                  birthDate: null,
-                  nationality: null,
-                  maritalStatus: null,
-                  numberOfChildren: null,
-                  contact: null,
-                },
-
-                perpetrator: {
-                  name: null,
-                  birthDate: null,
-                  address: null,
-                  criminalHistory: null,
-                },
-
-                incident: {
-                  date: null,
-                  time: null,
-                  location: null,
-                  nature: null,
-                  motive: null,
-                  frequency: null,
-                  weaponsInvolved: null,
-                  description: null,
-                  witnesses: null,
-                  effectsOnVictim: {
-                    physicalEffects: null,
-                    psychologicalEffects: null,
-                    preexistingConditions: null,
-                  },
-                },
-
-                responseActions: {
-                  reportedToAuthorities: null,
-                  actionsTaken: null,
-                },
-                supportServices: {
-                  supportServicesContact: null,
-                  historyOfHelp: null,
-                  supportNetwork: null,
-                },
-                documentation: {
-                  evidenceFiles: null,
-                  witnessReports: null,
-                  photographicEvidence: null,
-                  callRecords: null,
-                },
-                followUp: {
-                  progress: null,
-                }
-              }).then(() => {
-                navigation.goBack()
-              })
+              await firestore()
+                .collection(
+                  `users/${
+                    (city as {city: string}).city
+                  }@e-ilumina/manifestations`,
+                )
+                .add({
+                  userId: 'nao-informado',
+                  dataCriacao: new Date(),
+                  manifestacao: 'anonima',
+                  statusChamado: 'Em aberto',
+                  descricao: descricaoDenuncia,
+                  titulo: value,
+                  localizacao: location,
+                  files: selectedFiles,
+                })
+                .then(() => {
+                  navigation.goBack();
+                });
+            } catch (error) {
+              console.log(error);
+            }
           }}
           style={{
             width: '100%',
@@ -629,63 +646,71 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
             borderRadius: 10,
             backgroundColor: '#0077FF',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
           }}>
-          <Text style={{
-            color: '#fff',
-            fontFamily: 'GeneralSans-Semibold',
-            fontSize: 16,
-          }}>
+          <Text
+            style={{
+              color: '#fff',
+              fontFamily: 'GeneralSans-Semibold',
+              fontSize: 16,
+            }}>
             Criar Manifestação
           </Text>
         </TouchableOpacity>
       </View>
 
-      <Modal customBackdrop={
-        <TouchableNativeFeedback onPress={() => setModalErro(false)}>
-          <View style={{ flex: 1 }} />
-        </TouchableNativeFeedback>
-      } statusBarTranslucent isVisible={modalErro} style={{
-        justifyContent: 'flex-end',
-        margin: 0,
-        marginBottom: 30,
-        paddingHorizontal: 30
-      }}>
-        <View style={{
-          width: '100%',
-          padding: 16,
-          borderRadius: 8,
-          backgroundColor: '#FFFF',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          shadowColor: "#0005",
-          borderWidth: 1,
-          borderColor: '#EDE4FF',
-          shadowOffset: {
-            width: 0,
-            height: 9,
-          },
-          shadowOpacity: 0.48,
-          shadowRadius: 11.95,
-
-          elevation: 18,
+      <Modal
+        customBackdrop={
+          <TouchableNativeFeedback onPress={() => setModalErro(false)}>
+            <View style={{flex: 1}} />
+          </TouchableNativeFeedback>
+        }
+        statusBarTranslucent
+        isVisible={modalErro}
+        style={{
+          justifyContent: 'flex-end',
+          margin: 0,
+          marginBottom: 30,
+          paddingHorizontal: 30,
         }}>
+        <View
+          style={{
+            width: '100%',
+            padding: 16,
+            borderRadius: 8,
+            backgroundColor: '#FFFF',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            shadowColor: '#0005',
+            borderWidth: 1,
+            borderColor: '#EDE4FF',
+            shadowOffset: {
+              width: 0,
+              height: 9,
+            },
+            shadowOpacity: 0.48,
+            shadowRadius: 11.95,
+
+            elevation: 18,
+          }}>
           <View>
-            <Text style={{
-              fontSize: 16,
-              fontFamily: 'GeneralSans-Semibold',
-              color: '#0077FF',
-            }}>
+            <Text
+              style={{
+                fontSize: 16,
+                fontFamily: 'GeneralSans-Semibold',
+                color: '#0077FF',
+              }}>
               Erro ao fazer upload do arquivo
             </Text>
 
-            <Text style={{
-              fontSize: 12,
-              lineHeight: 18,
-              fontFamily: 'GeneralSans-Medium',
-              color: '#67697A',
-            }}>
+            <Text
+              style={{
+                fontSize: 12,
+                lineHeight: 18,
+                fontFamily: 'GeneralSans-Medium',
+                color: '#67697A',
+              }}>
               Caso persista, contate o suporte.
             </Text>
           </View>
@@ -698,14 +723,14 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
               borderRadius: 28,
               backgroundColor: '#3590FF',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
             }}>
             <IconClose width={16} height={16} />
           </Pressable>
         </View>
       </Modal>
 
-      <Modal 
+      <Modal
         statusBarTranslucent
         style={{
           justifyContent: 'flex-end',
@@ -713,19 +738,19 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
         }}
         isVisible={isModalVisible}
         onBackdropPress={() => setModalVisible(!isModalVisible)}
-        onBackButtonPress={() => setModalVisible(!isModalVisible)}
-      >
-        <View style={{ 
-          backgroundColor: 'white',
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
-          borderColor: 'rgba(0, 0, 0, 0.1)',
-          width: Dimensions.get('window').width,
-          height: Dimensions.get('window').height * 0.95,
-          position: 'absolute',
-          bottom: 0,
-          overflow: 'hidden'  
-         }}>
+        onBackButtonPress={() => setModalVisible(!isModalVisible)}>
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+            borderColor: 'rgba(0, 0, 0, 0.1)',
+            width: Dimensions.get('window').width,
+            height: Dimensions.get('window').height * 0.95,
+            position: 'absolute',
+            bottom: 0,
+            overflow: 'hidden',
+          }}>
           <Pressable
             onPress={() => setModalVisible(!isModalVisible)}
             style={{
@@ -739,8 +764,7 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: 12,
-            }}
-          >
+            }}>
             {/* <Close width={16} height={16} /> */}
           </Pressable>
 
@@ -757,11 +781,12 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
               boxShadow: '0px -4px 10px rgba(0, 0, 0, 0.1)',
               flexDirection: 'row',
               justifyContent: 'space-between',
-              paddingHorizontal: 30
-            }}
-          >
+              paddingHorizontal: 30,
+            }}>
             <Pressable
-              // onPress={() =>{getCurrentPosition()}}
+              onPress={() => {
+                getCurrentPosition();
+              }}
               style={{
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -812,7 +837,6 @@ export function AnonymousReport({ navigation }: { navigation: any }) {
           {/* <ChoosePlace location={position ?? { latitude: 0, longitude: 0 }} /> */}
         </View>
       </Modal>
-
     </ScrollView>
-  )
+  );
 }

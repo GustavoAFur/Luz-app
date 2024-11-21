@@ -104,7 +104,7 @@ export function Home({ navigation }: { navigation: any }) {
               fontFamily: 'GeneralSans-Semibold',
               color: '#0F1121',
             }}>
-              {auth().currentUser?.displayName ?? 'Bem vinda'}
+              {auth().currentUser?.displayName ?? 'Bem vindo(a)!'}
             </Text>
 
 
@@ -522,79 +522,6 @@ export function Home({ navigation }: { navigation: any }) {
 
       </View>
 
-      <View style={{
-        width: '100%',
-        paddingHorizontal: 30,
-        marginTop: 24,
-      }}>
-        <Pressable
-        onPress={() => navigation.navigate('Chat')}
-        style={{
-          width: '100%',
-          height: 140,
-          borderRadius: 12,
-          backgroundColor: '#F7F4FF',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'row'
-        }}>
-          <View style={{
-            width: 200,
-            height: 200,
-            borderRadius: 200,
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'absolute',
-            left: -25
-          }}>
-          </View>
-
-          <View style={{
-            width: 145,
-            height: 130,
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            position: 'absolute',
-            right: 0,
-            gap: 8
-          }}>
-            <Text style={{
-              fontSize: 16,
-              fontFamily: 'GeneralSans-Semibold',
-              color: '#6936D7',
-            }}>
-              Chat com a procuradora.
-            </Text>
-
-            <Text style={{
-              fontSize: 12,
-              fontFamily: 'GeneralSans-Regular',
-              color: '#67697A',
-            }}>
-              Um suporte e apoio emocional.
-            </Text>
-
-            <View style={{
-              height: 32,
-              backgroundColor: '#6936D7',
-              borderRadius: 20,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <Text style={{
-                fontSize: 12,
-                lineHeight: 14,
-                marginHorizontal: 15,
-                fontFamily: 'GeneralSans-Medium',
-                color: '#F7F4FF',
-              }}>
-                Clique aqui
-              </Text>
-            </View>
-          </View>
-        </Pressable>
-
-      </View>
 
       <View style={{
         marginTop: 24,
