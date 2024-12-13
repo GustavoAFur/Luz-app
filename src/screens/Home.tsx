@@ -13,9 +13,10 @@ import auth from '@react-native-firebase/auth';
 
 import IconArrowRight from '../../assets/svg/arrow-up-right.svg';
 import IconNotification from '../../assets/svg/notification.svg';
+import IconNotificationWhite from '../../assets/svg/notification-w.svg';
 import IconAdd from '../../assets/svg/add.svg';
-import IconTickCircle from '../../assets/svg/tick-circle.svg';
-import BackgroundImage from '../../assets/svg/8503139.svg';
+import IconPointDown from '../../assets/svg/point-down.svg';
+import NightQuestionImage from '../../assets/svg/night-question.svg';
 import BackgroundDay from '../../assets/svg/day-background.svg';
 import BackgroundNight from '../../assets/svg/night-background.svg';
 
@@ -77,7 +78,10 @@ export function Home({navigation}: {navigation: any}) {
                   new Date().getHours() >= 5 && new Date().getHours() < 18
                     ? '#FFD164'
                     : '#3E4F7E',
-                backgroundColor: '#FFFF',
+                backgroundColor:
+                  new Date().getHours() >= 5 && new Date().getHours() < 18
+                    ? '#FFFFFF'
+                    : '#B4BEDC',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 2,
@@ -87,7 +91,7 @@ export function Home({navigation}: {navigation: any}) {
                   backgroundColor:
                     new Date().getHours() >= 5 && new Date().getHours() < 18
                       ? '#FFE6A9'
-                      : '#536493',
+                      : '#7685B0',
                   alignItems: 'center',
                   justifyContent: 'center',
                   width: '100%',
@@ -150,7 +154,11 @@ export function Home({navigation}: {navigation: any}) {
               justifyContent: 'center',
             }}
             onPress={() => navigation.navigate('Notifications')}>
-            <IconNotification />
+            {new Date().getHours() >= 5 && new Date().getHours() < 18 ? (
+              <IconNotification />
+            ) : (
+              <IconNotificationWhite />
+            )}
           </Pressable>
         </View>
 
@@ -247,7 +255,7 @@ export function Home({navigation}: {navigation: any}) {
                 fontSize: 14,
                 lineHeight: 20,
                 fontFamily: 'GeneralSans-Medium',
-                color: '#67697A',
+                color: '#383530',
               }}>
               Denúncias anônimas
             </Text>
@@ -308,7 +316,7 @@ export function Home({navigation}: {navigation: any}) {
                 fontSize: 14,
                 lineHeight: 20,
                 fontFamily: 'GeneralSans-Medium',
-                color: '#67697A',
+                color: '#383530',
               }}>
               Manifestação
             </Text>
@@ -330,10 +338,83 @@ export function Home({navigation}: {navigation: any}) {
             alignSelf: 'center',
           }}>
           {new Date().getHours() >= 5 && new Date().getHours() < 18 ? (
-            <BackgroundDay width={width} height={315} />
+            <BackgroundDay width={width} height={305} />
           ) : (
-            <BackgroundNight width={width} height={315} />
+            <BackgroundNight width={width} height={305} />
           )}
+        </View>
+      </View>
+
+      <View
+        style={{
+          width: '100%',
+          paddingHorizontal: 30,
+          marginTop: 24,
+        }}>
+        <View
+          style={{
+            width: '100%',
+            borderRadius: 12,
+            backgroundColor: '#FFE7C8',
+            padding: 24,
+            flexDirection: 'row',
+            gap: 16,
+            justifyContent: 'space-between',
+          }}>
+          <View
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 44,
+              backgroundColor: '#FECA8A',
+            }}
+          />
+
+          <View
+            style={{
+              width: 165,
+              gap: 4,
+            }}>
+            <Text
+              style={{
+                fontSize: 16,
+                fontFamily: 'GeneralSans-Semibold',
+                color: '#383530',
+              }}>
+              Yuna Takahashi
+            </Text>
+
+            <Text
+              style={{
+                fontSize: 12,
+                fontFamily: 'GeneralSans-Regular',
+                color: '#383530',
+              }}>
+              Yuna Takahashi
+            </Text>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 4,
+            }}>
+            <Text
+              style={{
+                fontSize: 16,
+                fontFamily: 'GeneralSans-Medium',
+                color: '#C27373',
+              }}>
+              -2
+            </Text>
+
+            <IconPointDown
+              style={{
+                marginTop: 2,
+              }}
+            />
+          </View>
         </View>
       </View>
 
@@ -623,7 +704,27 @@ export function Home({navigation}: {navigation: any}) {
 
       <View
         style={{
+          width: '100%',
+          paddingHorizontal: 30,
           marginTop: 24,
+        }}>
+        <Pressable
+          onPress={() => navigation.navigate('Chat')}
+          style={{
+            width: '100%',
+            height: 125,
+            overflow: 'hidden',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 12,
+          }}>
+          <NightQuestionImage width={width} height={300} />
+        </Pressable>
+      </View>
+
+      <View
+        style={{
+          marginVertical: 24,
         }}>
         <View
           style={{
@@ -636,9 +737,9 @@ export function Home({navigation}: {navigation: any}) {
             style={{
               fontSize: 16,
               fontFamily: 'GeneralSans-Semibold',
-              color: '#0F1121',
+              color: '#383530',
             }}>
-            Aprenda mais sobre a procuradoria
+            Área Informativa
           </Text>
         </View>
 
@@ -667,7 +768,7 @@ export function Home({navigation}: {navigation: any}) {
                 height: 130,
                 borderRadius: 12,
                 borderWidth: 1,
-                borderColor: '#EDE4FF',
+                borderColor: '#F0E6DF',
                 backgroundColor: '#FCFBFF',
                 borderStyle: 'dashed',
                 marginLeft: 30,
@@ -698,7 +799,7 @@ export function Home({navigation}: {navigation: any}) {
               <View
                 style={{
                   width: 250,
-                  height: 130,
+                  height: 150,
                   borderRadius: 12,
                   backgroundColor: '#FFFFFF',
                   borderWidth: 1,
@@ -714,44 +815,49 @@ export function Home({navigation}: {navigation: any}) {
                   resizeMode="cover"
                   source={{uri: item.image}}
                 />
-              </View>
 
-              <View
-                style={{
-                  width: '100%',
-                  height: 32,
-                  flexDirection: 'row',
-                  alignItems: 'flex-start',
-                  justifyContent: 'flex-start',
-                  marginVertical: 12,
-                  gap: 12,
-                }}>
-                {item.tags.map((tag: string, index) => (
-                  <View
-                    key={index}
-                    style={{
-                      height: 32,
-                      borderRadius: 30,
-                      backgroundColor: '#E0EFFF',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                    <Text
+                <View
+                  style={{
+                    width: '100%',
+                    height: 32,
+                    position: 'absolute',
+                    bottom: 0,
+                    zIndex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    marginVertical: 8,
+                    marginHorizontal: 12,
+                    gap: 8,
+                  }}>
+                  {item.tags.map((tag: string, index) => (
+                    <View
+                      key={index}
                       style={{
-                        fontSize: 10,
-                        lineHeight: 12,
-                        fontFamily: 'GeneralSans-Medium',
-                        color: '#0077FF',
-                        marginHorizontal: 14,
+                        height: 28,
+                        borderRadius: 30,
+                        backgroundColor: '#F0E6DF',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                       }}>
-                      {tag}
-                    </Text>
-                  </View>
-                ))}
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          lineHeight: 12,
+                          fontFamily: 'GeneralSans-Medium',
+                          color: '#63605C',
+                          marginHorizontal: 14,
+                        }}>
+                        {tag}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
               </View>
 
               <View
                 style={{
+                  marginTop: 14,
                   alignItems: 'flex-start',
                   gap: 4,
                   justifyContent: 'space-between',
@@ -766,7 +872,7 @@ export function Home({navigation}: {navigation: any}) {
                       fontSize: 14,
                       lineHeight: 16,
                       fontFamily: 'GeneralSans-Medium',
-                      color: '#0F1121',
+                      color: '#383530',
                     }}>
                     {item.title}
                   </Text>
@@ -777,140 +883,14 @@ export function Home({navigation}: {navigation: any}) {
                     fontSize: 12,
                     lineHeight: 16,
                     fontFamily: 'GeneralSans-Regular',
-                    color: '#67697A',
+                    color: '#383530',
+                    opacity: 0.6,
                   }}>
                   {item.description}
                 </Text>
               </View>
             </View>
           )}
-        />
-      </View>
-
-      <View
-        style={{
-          width: '100%',
-          paddingVertical: 24,
-          marginTop: 32,
-          paddingHorizontal: 30,
-          backgroundColor: '#E0EFFF',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          overflow: 'hidden',
-        }}>
-        <View
-          style={{
-            width: '45%',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            gap: 8,
-          }}>
-          <Text
-            style={{
-              fontSize: 16,
-              lineHeight: 18,
-              fontFamily: 'GeneralSans-Semibold',
-              color: '#0077FF',
-            }}>
-            Seus direitos na palma da sua mão.
-          </Text>
-
-          <Text
-            style={{
-              fontSize: 12,
-              fontFamily: 'GeneralSans-Regular',
-              color: '#3B4C56',
-            }}>
-            Agora mais completo para você mulher.
-          </Text>
-
-          <View
-            style={{
-              width: '100%',
-              gap: 12,
-              marginTop: 12,
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-                gap: 8,
-              }}>
-              <IconTickCircle width={18} height={18} />
-
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'GeneralSans-Regular',
-                  color: '#3B4C56',
-                }}>
-                Chat de vídeo e texto
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-                gap: 8,
-              }}>
-              <IconTickCircle width={18} height={18} />
-
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'GeneralSans-Regular',
-                  color: '#3B4C56',
-                }}>
-                Suporte com uma especialista.
-              </Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-                gap: 8,
-              }}>
-              <IconTickCircle width={18} height={18} />
-
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'GeneralSans-Regular',
-                  color: '#3B4C56',
-                }}>
-                Mais de 20 vídeos para você conher mais.
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <Image
-          source={require('../../assets/img/162563.png')}
-          resizeMode="contain"
-          style={{
-            width: 210,
-            height: 210,
-            position: 'absolute',
-            right: -5,
-          }}
-        />
-
-        <BackgroundImage
-          style={{
-            position: 'absolute',
-            zIndex: -1,
-            right: 0,
-            left: -40,
-            opacity: 0.95,
-            width: '250%',
-            height: '250%',
-          }}
         />
       </View>
     </ScrollView>

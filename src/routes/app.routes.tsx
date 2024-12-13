@@ -1,16 +1,16 @@
-import { Image } from 'react-native'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { createStackNavigator, TransitionPresets } from '@react-navigation/stack'
+import {Image} from 'react-native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
 
-import { Home } from '../screens/Home'
-import { Complaints } from '../screens/Complaints'
-import { CreateComplaint } from '../screens/CreateComplaint'
-import { AnonymousReport } from '../screens/AnonymousReport'
-import { Manifestation } from '../screens/Manifestation'
+import {Home} from '../screens/Home';
+import {Complaints} from '../screens/Complaints';
+import {CreateComplaint} from '../screens/CreateComplaint';
+import {AnonymousReport} from '../screens/AnonymousReport';
+import {Manifestation} from '../screens/Manifestation';
+import {Chat} from '../screens/Chat';
 
 export function Navigation() {
-
-  const Stack = createStackNavigator()
+  const Stack = createStackNavigator();
 
   return (
     <Stack.Navigator
@@ -18,7 +18,6 @@ export function Navigation() {
       screenOptions={{
         headerShown: false,
       }}>
-
       <Stack.Screen
         name="Home"
         component={Home}
@@ -51,6 +50,13 @@ export function Navigation() {
         }}
       />
 
+      <Stack.Screen
+        name="Chat"
+        component={Chat}
+        options={{
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
     </Stack.Navigator>
   );
 }

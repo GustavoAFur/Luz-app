@@ -217,7 +217,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
             style={{
               fontSize: 18,
               fontFamily: 'GeneralSans-Semibold',
-              color: '#0F1121',
+              color: '#383530',
             }}>
             Denúncias anônimas
           </Text>
@@ -239,7 +239,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
         }}>
         <Text
           style={{
-            color: '#0F1121',
+            color: '#383530',
             fontFamily: 'GeneralSans-Semibold',
             fontSize: 16,
           }}>
@@ -259,13 +259,13 @@ export function AnonymousReport({navigation}: {navigation: any}) {
             height: 55,
             borderWidth: 1,
             borderRadius: 12,
-            borderColor: '#F3F3FA',
+            borderColor: '#F0E6DF',
           }}
           dropDownDirection="BOTTOM"
           dropDownContainerStyle={{
             paddingLeft: 12,
             backgroundColor: '#FFFFFF',
-            borderColor: '#F3F3FA',
+            borderColor: '#F0E6DF',
             borderWidth: 1,
             marginTop: 16,
             shadowColor: '#0002',
@@ -299,7 +299,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
         }}>
         <Text
           style={{
-            color: '#0F1121',
+            color: '#383530',
             fontFamily: 'GeneralSans-Semibold',
             fontSize: 16,
           }}>
@@ -312,7 +312,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
             borderWidth: 1,
             height: 200,
             borderRadius: 10,
-            borderColor: '#F3F3FA',
+            borderColor: '#F0E6DF',
             paddingHorizontal: 10,
           }}>
           <TextInput
@@ -324,7 +324,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
               height: 200,
               fontSize: 15,
               fontFamily: 'GeneralSans-Medium',
-              color: '#0F1121',
+              color: '#383530',
               paddingVertical: 15,
               paddingHorizontal: 10,
               textAlignVertical: 'top',
@@ -345,7 +345,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
             width: '100%',
             height: 80,
             borderRadius: 12,
-            backgroundColor: '#F2F6FC',
+            backgroundColor: '#F9F6F2',
           }}>
           <View
             style={{
@@ -374,16 +374,16 @@ export function AnonymousReport({navigation}: {navigation: any}) {
                 }}>
                 <Text
                   style={{
-                    color: '#808D9E',
+                    color: '#6E6259',
                     fontSize: 12,
-                    fontFamily: 'GeneralSans-Medium',
+                    fontFamily: 'GeneralSans-Regular',
                   }}>
                   Informe o endereço
                 </Text>
 
                 <Text
                   style={{
-                    color: '#191A26',
+                    color: '#383530',
                     fontSize: 14,
                     fontFamily: 'GeneralSans-Semibold',
                   }}>
@@ -418,8 +418,8 @@ export function AnonymousReport({navigation}: {navigation: any}) {
             height: 175,
             borderRadius: 12,
             borderWidth: 1,
-            borderColor: '#EDE4FF',
-            backgroundColor: '#FCFBFF',
+            borderColor: '#FFDAA9',
+            backgroundColor: '#FFFEFB',
             borderStyle: 'dashed',
             padding: 16,
           }}>
@@ -451,7 +451,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
                 <Text
                   style={{
                     textAlign: 'center',
-                    color: '#0077FF',
+                    color: '#383530',
                     fontFamily: 'GeneralSans-Semibold',
                     fontSize: 14,
                   }}>
@@ -462,7 +462,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
                   style={{
                     marginTop: 8,
                     textAlign: 'center',
-                    color: '#3B4C56',
+                    color: '#6E6259',
                     fontFamily: 'GeneralSans-Regular',
                     fontSize: 12,
                   }}>
@@ -580,7 +580,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
                   height: 48,
                   borderRadius: 48,
                   borderWidth: 2,
-                  borderColor: item.progress === 100 ? '#FFFF' : '#0077FF',
+                  borderColor: item.progress === 100 ? '#FFFF' : '#FFDAA9',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
@@ -644,13 +644,13 @@ export function AnonymousReport({navigation}: {navigation: any}) {
             width: '100%',
             height: 60,
             borderRadius: 10,
-            backgroundColor: '#0077FF',
+            backgroundColor: '#FFDAA9',
             alignItems: 'center',
             justifyContent: 'center',
           }}>
           <Text
             style={{
-              color: '#fff',
+              color: '#5E391C',
               fontFamily: 'GeneralSans-Semibold',
               fontSize: 16,
             }}>
@@ -684,7 +684,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
             justifyContent: 'space-between',
             shadowColor: '#0005',
             borderWidth: 1,
-            borderColor: '#EDE4FF',
+            borderColor: '#FFDAA9',
             shadowOffset: {
               width: 0,
               height: 9,
@@ -699,7 +699,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
               style={{
                 fontSize: 16,
                 fontFamily: 'GeneralSans-Semibold',
-                color: '#0077FF',
+                color: '#5E391C',
               }}>
               Erro ao fazer upload do arquivo
             </Text>
@@ -721,7 +721,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
               width: 28,
               height: 28,
               borderRadius: 28,
-              backgroundColor: '#3590FF',
+              backgroundColor: '#FFDAA9',
               alignItems: 'center',
               justifyContent: 'center',
             }}>
@@ -797,7 +797,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
                 style={{
                   fontSize: 16,
                   fontFamily: 'GeneralSans-Semibold',
-                  color: '#4A68FF',
+                  color: '#FFDAA9',
                 }}>
                 Meu Local
               </Text>
@@ -821,7 +821,7 @@ export function AnonymousReport({navigation}: {navigation: any}) {
                 style={{
                   fontSize: 16,
                   fontFamily: 'GeneralSans-Semibold',
-                  color: '#4A68FF',
+                  color: '#FFDAA9',
                 }}>
                 Confirmar
               </Text>
